@@ -25,12 +25,11 @@ A lightweight browser-based car racing survival game built with HTML5 canvas and
 
 ## Testing
 
-This lab now includes a lightweight Jest test suite that validates core gameplay calculations. To run the tests:
+The lab now includes a zero-dependency Node.js test harness that validates the core gameplay calculations. To run the tests:
 
 ```bash
 cd "labs/CAR RACING GAME"
-npm install
 npm test
 ```
 
-The tests execute in a JSDOM environment so no browser is required.
+`npm install` is no longer required because the test runner relies only on built-in Node.js modules.
