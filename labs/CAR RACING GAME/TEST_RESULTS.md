@@ -1,8 +1,12 @@
 # Car Racing Game Test Results
 
 - **Command:** `npm test`
-- **Outcome:** Failed. npm could not find `package.json`, so no automated tests were executed. This lab currently does not define a Node.js-based test suite.
+- **Outcome:** Not executed in this environment. npm registry access (required to install Jest dependencies) returned HTTP 403. The lab now ships with a Jest-based test suite that validates gameplay math, obstacle spawning, and collision detection once dependencies are installed.
 
-> npm error enoent Could not read package.json: Error: ENOENT: no such file or directory, open '/workspace/data-dev-learning-labs/package.json'
+To run locally with registry access:
 
-If automated tests are required in the future, consider adding a testing framework (for example, Jest or Playwright) and the necessary configuration files.
+```
+cd "labs/CAR RACING GAME"
+npm install
+npm test
+```

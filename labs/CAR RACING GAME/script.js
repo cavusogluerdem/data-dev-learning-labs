@@ -1,11 +1,12 @@
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
-const scoreValue = document.getElementById("scoreValue");
-const overlay = document.getElementById("overlay");
-const overlayTitle = document.getElementById("overlayTitle");
-const overlayMessage = document.getElementById("overlayMessage");
-const restartButton = document.getElementById("restartButton");
-const speedSelect = document.getElementById("speedSelect");
+const doc = typeof document !== "undefined" ? document : null;
+const canvas = doc ? doc.getElementById("gameCanvas") : null;
+const ctx = canvas && typeof canvas.getContext === "function" ? canvas.getContext("2d") : null;
+const scoreValue = doc ? doc.getElementById("scoreValue") : null;
+const overlay = doc ? doc.getElementById("overlay") : null;
+const overlayTitle = doc ? doc.getElementById("overlayTitle") : null;
+const overlayMessage = doc ? doc.getElementById("overlayMessage") : null;
+const restartButton = doc ? doc.getElementById("restartButton") : null;
+const speedSelect = doc ? doc.getElementById("speedSelect") : null;
 
 const LANES = 3;
 const ROAD_PADDING = 40;
@@ -16,7 +17,7 @@ const COLORS = ["#f97316", "#38bdf8", "#22c55e", "#eab308", "#f87171"];
 let lastTimestamp = 0;
 let elapsed = 0;
 let score = 0;
-let gameSpeed = 1.35;
+let gameSpeed = speedSelect ? Number(speedSelect.value) || 1.35 : 1.35;
 let isRunning = false;
 let gameOver = false;
 let spawnCooldown = 0;
@@ -24,7 +25,7 @@ let spawnCooldown = 0;
 const player = {
   lane: 1,
   x: 0,
-  y: canvas.height - PLAYER_SIZE.height - 20,
+  y: (canvas ? canvas.height : 600) - PLAYER_SIZE.height - 20,
   speed: 6,
 };
 
@@ -36,6 +37,7 @@ const inputs = {
 let obstacles = [];
 
 function laneWidth() {
+  if (!canvas) return 0;
   return (canvas.width - ROAD_PADDING * 2) / LANES;
 }
 
@@ -47,14 +49,23 @@ function resetGame(startImmediately = false) {
   score = 0;
   elapsed = 0;
   spawnCooldown = 0;
-  lastTimestamp = performance.now();
-  gameSpeed = Number(speedSelect.value);
+  lastTimestamp =
+    typeof performance !== "undefined" && typeof performance.now === "function"
+      ? performance.now()
+      : Date.now();
+  if (speedSelect) {
+    gameSpeed = Number(speedSelect.value) || gameSpeed;
+  }
   obstacles = [];
   player.lane = 1;
   player.x = laneToX(player.lane);
   gameOver = false;
-  scoreValue.textContent = "0";
-  overlay.hidden = true;
+  if (scoreValue) {
+    scoreValue.textContent = "0";
+  }
+  if (overlay) {
+    overlay.hidden = true;
+  }
   if (startImmediately) {
     startLoop();
   } else {
@@ -89,7 +100,9 @@ function updateObstacles(delta) {
   for (const obstacle of obstacles) {
     obstacle.y += obstacle.speed * delta * speedMultiplier;
   }
-  obstacles = obstacles.filter((obstacle) => obstacle.y < canvas.height + OBSTACLE_SIZE.height);
+  obstacles = obstacles.filter(
+    (obstacle) => !canvas || obstacle.y < canvas.height + OBSTACLE_SIZE.height
+  );
 }
 
 function checkCollisions() {
@@ -105,6 +118,7 @@ function checkCollisions() {
 }
 
 function drawRoad() {
+  if (!ctx || !canvas) return;
   ctx.fillStyle = "#0f172a";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -122,6 +136,7 @@ function drawRoad() {
 }
 
 function drawCar(x, y, color) {
+  if (!ctx) return;
   ctx.fillStyle = color;
   ctx.beginPath();
   if (typeof ctx.roundRect === "function") {
@@ -158,6 +173,7 @@ function drawCar(x, y, color) {
 }
 
 function draw() {
+  if (!ctx) return;
   drawRoad();
   drawCar(player.x, player.y, "#6366f1");
   for (const obstacle of obstacles) {
@@ -170,7 +186,9 @@ function update(delta) {
 
   elapsed += delta * 600 * gameSpeed;
   score += delta * 100 * gameSpeed;
-  scoreValue.textContent = Math.floor(score).toString();
+  if (scoreValue) {
+    scoreValue.textContent = Math.floor(score).toString();
+  }
 
   spawnCooldown -= delta * 1000;
   const spawnThreshold = Math.max(450 - score / 2, 220) / gameSpeed;
@@ -190,9 +208,17 @@ function update(delta) {
 function endGame() {
   isRunning = false;
   gameOver = true;
-  overlayTitle.textContent = "Game Over";
-  overlayMessage.textContent = `You scored ${Math.floor(score)} points. Press space or click restart to try again.`;
-  overlay.hidden = false;
+  if (overlayTitle) {
+    overlayTitle.textContent = "Game Over";
+  }
+  if (overlayMessage) {
+    overlayMessage.textContent = `You scored ${Math.floor(
+      score
+    )} points. Press space or click restart to try again.`;
+  }
+  if (overlay) {
+    overlay.hidden = false;
+  }
 }
 
 function frame(timestamp) {
@@ -207,68 +233,109 @@ function frame(timestamp) {
 
   update(delta);
   draw();
-  requestAnimationFrame(frame);
+  if (typeof requestAnimationFrame === "function") {
+    requestAnimationFrame(frame);
+  }
 }
 
 function startLoop() {
   if (!isRunning) {
     isRunning = true;
-    lastTimestamp = performance.now();
-    requestAnimationFrame(frame);
+    lastTimestamp =
+      typeof performance !== "undefined" && typeof performance.now === "function"
+        ? performance.now()
+        : Date.now();
+    if (typeof requestAnimationFrame === "function") {
+      requestAnimationFrame(frame);
+    }
   }
 }
 
 function handleStart() {
   if (isRunning) return;
-  overlay.hidden = true;
+  if (overlay) {
+    overlay.hidden = true;
+  }
   gameOver = false;
   resetGame(true);
 }
 
-window.addEventListener("keydown", (event) => {
-  switch (event.key.toLowerCase()) {
-    case "arrowleft":
-    case "a":
-      inputs.left = true;
-      break;
-    case "arrowright":
-    case "d":
-      inputs.right = true;
-      break;
-    case " ":
-      if (!isRunning) {
-        event.preventDefault();
-        handleStart();
-      }
-      break;
-  }
-});
+if (typeof window !== "undefined") {
+  window.addEventListener("keydown", (event) => {
+    switch (event.key.toLowerCase()) {
+      case "arrowleft":
+      case "a":
+        inputs.left = true;
+        break;
+      case "arrowright":
+      case "d":
+        inputs.right = true;
+        break;
+      case " ":
+        if (!isRunning) {
+          event.preventDefault();
+          handleStart();
+        }
+        break;
+    }
+  });
 
-window.addEventListener("keyup", (event) => {
-  switch (event.key.toLowerCase()) {
-    case "arrowleft":
-    case "a":
-      inputs.left = false;
-      break;
-    case "arrowright":
-    case "d":
-      inputs.right = false;
-      break;
-  }
-});
+  window.addEventListener("keyup", (event) => {
+    switch (event.key.toLowerCase()) {
+      case "arrowleft":
+      case "a":
+        inputs.left = false;
+        break;
+      case "arrowright":
+      case "d":
+        inputs.right = false;
+        break;
+    }
+  });
+}
 
-restartButton.addEventListener("click", handleStart);
+if (restartButton) {
+  restartButton.addEventListener("click", handleStart);
+}
 
-speedSelect.addEventListener("change", () => {
-  gameSpeed = Number(speedSelect.value);
-  if (!isRunning) {
-    resetGame();
-    draw();
-  }
-});
+if (speedSelect) {
+  speedSelect.addEventListener("change", () => {
+    gameSpeed = Number(speedSelect.value) || gameSpeed;
+    if (!isRunning) {
+      resetGame();
+      draw();
+    }
+  });
+}
 
 player.x = laneToX(player.lane);
 draw();
-overlay.hidden = false;
-overlayTitle.textContent = "Ready to Race";
-overlayMessage.textContent = "Press the space bar or tap Restart to begin the game.";
+if (overlay) {
+  overlay.hidden = false;
+}
+if (overlayTitle) {
+  overlayTitle.textContent = "Ready to Race";
+}
+if (overlayMessage) {
+  overlayMessage.textContent = "Press the space bar or tap Restart to begin the game.";
+}
+
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = {
+    laneWidth,
+    laneToX,
+    resetGame,
+    spawnObstacle,
+    updatePlayerPosition,
+    updateObstacles,
+    checkCollisions,
+    getState: () => ({
+      player,
+      obstacles,
+      inputs,
+      canvas,
+      overlay,
+      scoreValue,
+    }),
+  };
+}

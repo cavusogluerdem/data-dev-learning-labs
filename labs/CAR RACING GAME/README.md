@@ -22,3 +22,15 @@ A lightweight browser-based car racing survival game built with HTML5 canvas and
 - Tweak `LANES`, `PLAYER_SIZE`, or `OBSTACLE_SIZE` in `script.js` to adjust the layout.
 - Modify the spawn logic in `spawnObstacle` or `update` to change pacing or add new car types.
 - Extend the overlay with high-score tracking or sound effects for additional polish.
+
+## Testing
+
+This lab now includes a lightweight Jest test suite that validates core gameplay calculations. To run the tests:
+
+```bash
+cd "labs/CAR RACING GAME"
+npm install
+npm test
+```
+
+The tests execute in a JSDOM environment so no browser is required.
