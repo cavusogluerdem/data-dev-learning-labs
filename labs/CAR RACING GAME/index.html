@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Car Racing Game</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="game-container">
+      <header class="game-header">
+        <h1>Car Racing Game</h1>
+        <p class="game-instructions">
+          Use the arrow keys (or A/D) to change lanes and dodge the oncoming traffic.
+          Press the space bar to start or restart the race.
+        </p>
+      </header>
+      <section class="game-status">
+        <div class="scoreboard">
+          <span>Score:</span>
+          <span id="scoreValue">0</span>
+        </div>
+        <div class="difficulty">
+          <label for="speedSelect">Traffic Density:</label>
+          <select id="speedSelect">
+            <option value="1">Light</option>
+            <option value="1.35" selected>Moderate</option>
+            <option value="1.7">Heavy</option>
+          </select>
+        </div>
+      </section>
+      <canvas id="gameCanvas" width="400" height="600" aria-label="Car racing playfield" role="img"></canvas>
+      <section class="game-overlay" id="overlay" hidden>
+        <div class="overlay-card">
+          <h2 id="overlayTitle">Game Over</h2>
+          <p id="overlayMessage"></p>
+          <button id="restartButton" type="button">Restart</button>
+        </div>
+      </section>
+    </main>
+    <footer class="game-footer">
+      <p>
+        Survive the highway as long as you can. The longer you last, the higher your
+        score. Adjust the traffic density for a tougher challenge.
+      </p>
+    </footer>
+    <script src="script.js"></script>
+  </body>
+</html>
